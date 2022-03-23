@@ -56,6 +56,9 @@ public class BroadcastConsumerReactive {
     @Autowired
     CampaignService campaignService;
     
+    @Autowired
+    UserService userService;
+    
     @EventListener(ApplicationStartedEvent.class)
     public void onMessage() {
         reactiveKafkaReceiver
@@ -108,7 +111,7 @@ public class BroadcastConsumerReactive {
             @Override
             public List<XMessage> apply(JsonNode campaign) {
                 String campaignID = campaign.get("id").asText();
-                JSONArray users = UserService.getUsersFromFederatedServers(campaignID);
+                JSONArray users = userService.getUsersFromFederatedServers(campaignID);
                 JsonNode firstTransformer = campaign.findValues("transformers").get(0).get(0);
                 
             	ObjectMapper mapper = new ObjectMapper();
@@ -127,14 +130,14 @@ public class BroadcastConsumerReactive {
             	}
             	node.put("sampleData", sampleData);
             	
-            	ArrayList<JSONObject> usersMessage = UserService.getUsersMessageByTemplate(node);
+            	ArrayList<JSONObject> usersMessage = userService.getUsersMessageByTemplate(node);
                 
             	log.info("usersMessage: "+usersMessage);
             	
             	usersMessage.forEach(userMsg -> {
             		int j = Integer.parseInt(userMsg.get("__index").toString());
             		 String userPhone = ((JSONObject) users.get(j)).getString("whatsapp_mobile_number");
-            		 userPhone = "7597185708";
+//            		 userPhone = "7597185708";
             		// Create new xMessage from response
                    XMessage nextMessage = getClone(xMessage);
                    XMessagePayload payload = XMessagePayload.builder().build();

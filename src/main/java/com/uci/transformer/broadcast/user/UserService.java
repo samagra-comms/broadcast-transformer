@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,16 @@ public class UserService {
 
 	@Autowired
 	private CampaignService campaignService;
+	
+	@Value("${campaign.url}")
+    public String CAMPAIGN_URL;
+    
+    @Value("${campaign.admin.token}")
+	public String CAMPAIGN_ADMIN_TOKEN;
+	
+	@Value("${template.service.base.url}")
+	private String baseUrlTemplate;
+	
 //    @Autowired
 //    @Value("${external.services.url-shortnr.baseURL}")
 	private static String shortnrBaseURL = "http://localhost:9999";
@@ -231,13 +242,15 @@ public class UserService {
 		return null;
 	}
 
-	public static JSONArray getUsersFromFederatedServers(String campaignID) {
+	public JSONArray getUsersFromFederatedServers(String campaignID) {
 
-		String baseURL = "http://uci-apis.ngrok.samagra.io" + "/admin/v1/bot/getAllUsers/" + campaignID;
+		String baseURL = CAMPAIGN_URL + "/admin/v1/bot/getAllUsers/" + campaignID;
 		OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(90, TimeUnit.SECONDS)
 				.writeTimeout(90, TimeUnit.SECONDS).readTimeout(90, TimeUnit.SECONDS).build();
 		MediaType mediaType = MediaType.parse("application/json");
-		Request request = new Request.Builder().url(baseURL).addHeader("Content-Type", "application/json").addHeader("admin-token", "EXnYOvDx4KFqcQkdXqI38MHgFvnJcxMS").build();
+		Request request = new Request.Builder().url(baseURL)
+								.addHeader("Content-Type", "application/json")
+								.addHeader("admin-token", CAMPAIGN_ADMIN_TOKEN).build();
 		try {
 			Response response = client.newCall(request).execute();
 			return (new JSONObject(response.body().string())).getJSONObject("result").getJSONArray("data");
@@ -277,8 +290,8 @@ public class UserService {
 		return null;
 	}
 
-	public static ArrayList<JSONObject> getUsersMessageByTemplate(ObjectNode jsonData) {
-		String baseURL = "http://templater2.ngrok.samagra.io" + "/process/testMany";
+	public ArrayList<JSONObject> getUsersMessageByTemplate(ObjectNode jsonData) {
+		String baseURL = baseUrlTemplate + "/process/testMany";
 		OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(90, TimeUnit.SECONDS)
 				.writeTimeout(90, TimeUnit.SECONDS).readTimeout(90, TimeUnit.SECONDS).build();
 		MediaType mediaType = MediaType.parse("application/json");
