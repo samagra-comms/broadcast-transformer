@@ -138,6 +138,7 @@ public class BroadcastConsumerReactive {
             		int j = Integer.parseInt(userMsg.get("__index").toString());
             		 String userPhone = ((JSONObject) users.get(j)).getString("whatsapp_mobile_number");
 //            		 userPhone = "7597185708";
+            		 
             		// Create new xMessage from response
                    XMessage nextMessage = getClone(xMessage);
                    XMessagePayload payload = XMessagePayload.builder().build();
