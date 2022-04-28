@@ -133,12 +133,12 @@
 		<dependency>
 			<groupId>com.uci</groupId>
 			<artifactId>message-rosa</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.uci</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.3</version>
 		</dependency>
 		<!-- <dependency> <groupId>com.uci</groupId> <artifactId>dao</artifactId> 
 			<version>1.0</version> </dependency> -->
