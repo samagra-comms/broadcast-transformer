@@ -141,6 +141,16 @@ public class BroadcastConsumerReactive {
 		                        // Update user info
 								SenderReceiverInfo to = SenderReceiverInfo.builder().userID(user.get("phone").toString())
 										.build();
+								try{
+									if(user.get("fcmToken") != null) {
+										Map<String, String> map = new HashMap();
+										map.put("fcmToken", user.get("fcmToken").toString());
+										to.setMeta(map);
+									}
+								} catch (Exception e){
+
+								}
+
 								nextMessage.setTo(to);
 
 								nextMessage.setMessageState(NOT_SENT);
