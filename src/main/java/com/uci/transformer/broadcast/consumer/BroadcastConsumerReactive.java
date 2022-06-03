@@ -54,8 +54,8 @@ public class BroadcastConsumerReactive {
 	@Autowired
 	public SimpleProducer kafkaProducer;
 
-	@Value("${outbound}")
-	public String outboundTopic;
+	@Value("${processOutbound}")
+	public String processOutbound;
 
 	@Autowired
 	CampaignService campaignService;
@@ -73,12 +73,16 @@ public class BroadcastConsumerReactive {
 					XMessage msg = XMessageParser.parse(new ByteArrayInputStream(stringMessage.value().getBytes()));
 					logTimeTaken(startTime, 1);
 					ArrayList<XMessage> messages = (ArrayList<XMessage>) transformToMany(msg);
-					for (XMessage message : messages) {
-						try {
-							kafkaProducer.send(outboundTopic, message.toXML());
-						} catch (JAXBException e) {
-							e.printStackTrace();
+					if(messages.size() > 0){
+						for (XMessage message : messages) {
+							try {
+								kafkaProducer.send(processOutbound, message.toXML());
+							} catch (JAXBException e) {
+								e.printStackTrace();
+							}
 						}
+					} else {
+						log.error("No user messages to broadcast.");
 					}
 				} catch (JAXBException e) {
 					e.printStackTrace();
@@ -123,40 +127,42 @@ public class BroadcastConsumerReactive {
 							&& transformer.getMetaData().get("type").toString().equals("broadcast")
 							&& transformer.getMetaData().get("federatedUsers") != null) {
 						try {
-							JSONArray federatedUsers = new JSONObject(
-									transformer.getMetaData().get("federatedUsers").toString()).getJSONArray("list");
-							
-							for (int i = 0; i < federatedUsers.length(); i++) {
-								JSONObject user = (JSONObject) federatedUsers.get(i);
-								XMessage nextMessage = getClone(xMessageClone);
+							if(transformer.getMetaData().get("federatedUsers") != null && !transformer.getMetaData().get("federatedUsers").isEmpty()) {
+								JSONArray federatedUsers = new JSONObject(
+										transformer.getMetaData().get("federatedUsers").toString()).getJSONArray("list");
 
-								XMessagePayload payload = XMessagePayload.builder().build();
-								payload.setText(user.get("message").toString());
+								for (int i = 0; i < federatedUsers.length(); i++) {
+									JSONObject user = (JSONObject) federatedUsers.get(i);
+									XMessage nextMessage = getClone(xMessageClone);
 
-								log.info("message: " + user.get("message").toString() + ", phone:"
-										+ user.get("phone").toString());
+									XMessagePayload payload = XMessagePayload.builder().build();
+									payload.setText(user.get("message").toString());
 
-								nextMessage.setPayload(payload);
+									log.info("message: " + user.get("message").toString() + ", phone:"
+											+ user.get("phone").toString());
 
-		                        // Update user info
-								SenderReceiverInfo to = SenderReceiverInfo.builder().userID(user.get("phone").toString())
-										.build();
-								try{
-									if(user.get("fcmToken") != null) {
-										Map<String, String> map = new HashMap();
-										map.put("fcmToken", user.get("fcmToken").toString());
-										to.setMeta(map);
+									nextMessage.setPayload(payload);
+
+									// Update user info
+									SenderReceiverInfo to = SenderReceiverInfo.builder().userID(user.get("phone").toString())
+											.build();
+									try{
+										if(user.get("fcmToken") != null) {
+											Map<String, String> map = new HashMap();
+											map.put("fcmToken", user.get("fcmToken").toString());
+											to.setMeta(map);
+										}
+									} catch (Exception e){
+
 									}
-								} catch (Exception e){
 
+									nextMessage.setTo(to);
+
+									nextMessage.setMessageState(NOT_SENT);
+									nextMessage.setMessageType(HSM);
+
+									messages.add(nextMessage);
 								}
-
-								nextMessage.setTo(to);
-
-								nextMessage.setMessageState(NOT_SENT);
-								nextMessage.setMessageType(HSM);
-
-								messages.add(nextMessage);
 							}
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
