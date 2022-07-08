@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import javax.xml.bind.JAXBException;
 
@@ -22,13 +21,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.uci.utils.CampaignService;
 import com.uci.utils.kafka.SimpleProducer;
 
 import lombok.RequiredArgsConstructor;
@@ -39,7 +32,6 @@ import messagerosa.core.model.XMessage;
 import messagerosa.core.model.XMessagePayload;
 import messagerosa.xml.XMessageParser;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.kafka.receiver.ReceiverRecord;
 
 @Component
@@ -48,17 +40,11 @@ import reactor.kafka.receiver.ReceiverRecord;
 public class BroadcastConsumerReactive {
 	private final Flux<ReceiverRecord<String, String>> reactiveKafkaReceiver;
 
-	private static final String SMS_BROADCAST_IDENTIFIER = "Broadcast";
-	public static final String XML_PREFIX = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-
 	@Autowired
 	public SimpleProducer kafkaProducer;
 
 	@Value("${processOutbound}")
 	public String processOutbound;
-
-	@Autowired
-	CampaignService campaignService;
 
 	@EventListener(ApplicationStartedEvent.class)
 	public void onMessage() {

@@ -1,33 +1,21 @@
 package com.uci.transformer.broadcast.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.uci.utils.CampaignService;
-import com.uci.utils.kafka.ReactiveProducer;
 import io.fusionauth.client.FusionAuthClient;
 
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverOptions;
@@ -38,7 +26,6 @@ import reactor.kafka.sender.SenderOptions;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @Configuration
 @EnableAutoConfiguration
@@ -79,16 +66,6 @@ public class AppConfiguration {
     @Bean
     public FusionAuthClient getFAClient() {
         return new FusionAuthClient(FUSIONAUTH_KEY, FUSIONAUTH_URL);
-    }
-
-    @Bean
-    public CampaignService getCampaignService() {
-        System.out.println("Inside getCampaignService :: " + CAMPAIGN_ADMIN_TOKEN + " :: " + CAMPAIGN_URL);
-        WebClient webClient = WebClient.builder()
-                .baseUrl(CAMPAIGN_URL)
-                .defaultHeader("admin-token", CAMPAIGN_ADMIN_TOKEN)
-                .build();
-        return new CampaignService(webClient, getFAClient(), cache);
     }
 
     @Bean
