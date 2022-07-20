@@ -43,13 +43,6 @@ import java.util.regex.Pattern;
 @Configuration
 @EnableAutoConfiguration
 public class AppConfiguration {
-
-    @Value("${campaign.url}")
-    public String CAMPAIGN_URL;
-    
-    @Value("${campaign.admin.token}")
-	public String CAMPAIGN_ADMIN_TOKEN;
-
     @Bean
     @Qualifier("rest")
     public RestTemplate getRestTemplate() {
@@ -61,12 +54,6 @@ public class AppConfiguration {
 
     @Value("${fusionauth.key}")
     public String FUSIONAUTH_KEY;
-
-    @Value("${odk.username}")
-    public String ODK_USERNAME;
-
-    @Value("${odk.password}")
-    public String ODK_PASSWORD;
     
     @Autowired
     public Cache<Object, Object> cache;
@@ -79,16 +66,6 @@ public class AppConfiguration {
     @Bean
     public FusionAuthClient getFAClient() {
         return new FusionAuthClient(FUSIONAUTH_KEY, FUSIONAUTH_URL);
-    }
-
-    @Bean
-    public CampaignService getCampaignService() {
-        System.out.println("Inside getCampaignService :: " + CAMPAIGN_ADMIN_TOKEN + " :: " + CAMPAIGN_URL);
-        WebClient webClient = WebClient.builder()
-                .baseUrl(CAMPAIGN_URL)
-                .defaultHeader("admin-token", CAMPAIGN_ADMIN_TOKEN)
-                .build();
-        return new CampaignService(webClient, getFAClient(), cache);
     }
 
     @Bean
@@ -153,9 +130,4 @@ public class AppConfiguration {
     	KafkaTemplate<String, String> kafkaTemplate = new KafkaTemplate<>(producerFactory());
     	return (KafkaTemplate<String, String>) kafkaTemplate;
     }
-
-//    @Bean
-//    ReactiveProducer kafkaReactiveProducer() {
-//        return new ReactiveProducer();
-//    }
 }
