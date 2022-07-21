@@ -30,13 +30,6 @@ import java.util.Map;
 @Configuration
 @EnableAutoConfiguration
 public class AppConfiguration {
-
-    @Value("${campaign.url}")
-    public String CAMPAIGN_URL;
-    
-    @Value("${campaign.admin.token}")
-	public String CAMPAIGN_ADMIN_TOKEN;
-
     @Bean
     @Qualifier("rest")
     public RestTemplate getRestTemplate() {
@@ -48,12 +41,6 @@ public class AppConfiguration {
 
     @Value("${fusionauth.key}")
     public String FUSIONAUTH_KEY;
-
-    @Value("${odk.username}")
-    public String ODK_USERNAME;
-
-    @Value("${odk.password}")
-    public String ODK_PASSWORD;
     
     @Autowired
     public Cache<Object, Object> cache;
@@ -130,9 +117,4 @@ public class AppConfiguration {
     	KafkaTemplate<String, String> kafkaTemplate = new KafkaTemplate<>(producerFactory());
     	return (KafkaTemplate<String, String>) kafkaTemplate;
     }
-
-//    @Bean
-//    ReactiveProducer kafkaReactiveProducer() {
-//        return new ReactiveProducer();
-//    }
 }
