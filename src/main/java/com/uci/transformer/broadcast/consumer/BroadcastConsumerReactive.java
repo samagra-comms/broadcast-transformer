@@ -140,6 +140,9 @@ public class BroadcastConsumerReactive {
 										if(user.get("fcmToken") != null) {
 											Map<String, String> map = new HashMap();
 											map.put("fcmToken", user.get("fcmToken").toString());
+											if(user.get("fcmClickActionUrl") != null) {
+												map.put("fcmClickActionUrl", user.get("fcmClickActionUrl").toString());
+											}
 											to.setMeta(map);
 										}
 									} catch (Exception e){
