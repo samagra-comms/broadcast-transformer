@@ -132,15 +132,18 @@ public class BroadcastConsumerReactive {
 									// Update user info
 									SenderReceiverInfo to = SenderReceiverInfo.builder().userID(user.get("phone").toString())
 											.build();
+									Map<String, String> toMeta = new HashMap();
 									try{
 										if(user.get("fcmToken") != null) {
-											Map<String, String> map = new HashMap();
-											map.put("fcmToken", user.get("fcmToken").toString());
-											to.setMeta(map);
+											toMeta.put("fcmToken", user.get("fcmToken").toString());
+											if(user.get("fcmClickActionUrl") != null) {
+												toMeta.put("fcmClickActionUrl", user.get("fcmClickActionUrl").toString());
+											}
 										}
 									} catch (Exception e){
 
 									}
+									to.setMeta(toMeta);
 
 									nextMessage.setTo(to);
 
