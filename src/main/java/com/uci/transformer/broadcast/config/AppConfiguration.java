@@ -117,8 +117,8 @@ public class AppConfiguration {
 //        }
     	ReceiverOptions<String, String> options = ReceiverOptions.create(kafkaConsumerConfiguration());
         return options.subscription(Arrays.asList(inTopicName))
-                .withKeyDeserializer(new JsonDeserializer<>())
-                .withValueDeserializer(new JsonDeserializer(String.class));
+                .withKeyDeserializer(new StringDeserializer())
+                .withValueDeserializer(new StringDeserializer());
     }
 
     @Bean
