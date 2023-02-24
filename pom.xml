@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.uci</groupId>
 	<artifactId>broadcast-transformer</artifactId>
-	<version>5.0.0</version>
+	<version>5.1.0</version>
 	<name>broadcast-transformer</name>
 	<description>Demo project for Spring Boot</description>
 
@@ -84,12 +84,12 @@
 		<dependency>
 			<groupId>com.uci</groupId>
 			<artifactId>message-rosa</artifactId>
-			<version>5.0.0</version>
+			<version>5.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.uci</groupId>
 			<artifactId>utils</artifactId>
-			<version>5.0.0</version>
+			<version>5.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
