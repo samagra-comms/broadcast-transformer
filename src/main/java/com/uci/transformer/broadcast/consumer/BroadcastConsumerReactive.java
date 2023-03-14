@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 import javax.xml.bind.JAXBException;
 
+import messagerosa.core.model.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,6 @@ import com.uci.utils.kafka.SimpleProducer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import messagerosa.core.model.SenderReceiverInfo;
-import messagerosa.core.model.Transformer;
-import messagerosa.core.model.XMessage;
-import messagerosa.core.model.XMessagePayload;
 import messagerosa.xml.XMessageParser;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -96,7 +93,7 @@ public class BroadcastConsumerReactive {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			ArrayList<Transformer> transformers = xMessage.getTransformers();
-			
+
 			/* Create XMessage clone & remove federated users data from it. */
 			XMessage xMessageClone = getClone(xMessage);
 			ArrayList<Transformer> transformers2 = xMessageClone.getTransformers();
@@ -110,7 +107,7 @@ public class BroadcastConsumerReactive {
 				transformers2.set(i, transformer2);
 			}
 			xMessageClone.setTransformers(transformers2);
-			
+
 			if (transformers != null) {
 				transformers.forEach(transformer -> {
 					if (transformer.getMetaData() != null && transformer.getMetaData().get("type") != null
@@ -127,6 +124,23 @@ public class BroadcastConsumerReactive {
 
 									XMessagePayload payload = XMessagePayload.builder().build();
 									payload.setText(user.get("message").toString());
+									payload.setTitle(transformer.getMetaData().get("title").toString());
+
+									if(user.get("fcmToken") != null) {
+										ArrayList<Data> dataArrayList = new ArrayList<>();
+										Data data = new Data();
+										data.setKey("fcmToken");
+										data.setValue(user.get("fcmToken").toString());
+										dataArrayList.add(data);
+										if (user.get("fcmClickActionUrl") != null) {
+											data = new Data();
+											data.setKey("fcmClickActionUrl");
+											data.setValue(user.get("fcmClickActionUrl").toString());
+											dataArrayList.add(data);
+										}
+										payload.setData(dataArrayList);
+									}
+
 
 									log.info("message: " + user.get("message").toString() + ", phone:"
 											+ user.get("phone").toString());
@@ -136,18 +150,18 @@ public class BroadcastConsumerReactive {
 									// Update user info
 									SenderReceiverInfo to = SenderReceiverInfo.builder().userID(user.get("phone").toString())
 											.build();
-									Map<String, String> toMeta = new HashMap();
-									try{
-										if(user.get("fcmToken") != null) {
-											toMeta.put("fcmToken", user.get("fcmToken").toString());
-											if(user.get("fcmClickActionUrl") != null) {
-												toMeta.put("fcmClickActionUrl", user.get("fcmClickActionUrl").toString());
-											}
-										}
-									} catch (Exception e){
-
-									}
-									to.setMeta(toMeta);
+//									Map<String, String> toMeta = new HashMap();
+//									try{
+//										if(user.get("fcmToken") != null) {
+//											toMeta.put("fcmToken", user.get("fcmToken").toString());
+//											if(user.get("fcmClickActionUrl") != null) {
+//												toMeta.put("fcmClickActionUrl", user.get("fcmClickActionUrl").toString());
+//											}
+//										}
+//									} catch (Exception e){
+//
+//									}
+//									to.setMeta(toMeta);
 
 									nextMessage.setTo(to);
 
