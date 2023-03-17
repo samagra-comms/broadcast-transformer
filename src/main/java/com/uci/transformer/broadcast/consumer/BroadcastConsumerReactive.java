@@ -29,7 +29,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import messagerosa.xml.XMessageParser;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.kafka.receiver.ReceiverRecord;
 
 @Component
@@ -37,9 +36,6 @@ import reactor.kafka.receiver.ReceiverRecord;
 @Slf4j
 public class BroadcastConsumerReactive {
 	private final Flux<ReceiverRecord<String, String>> reactiveKafkaReceiver;
-
-	private static final String SMS_BROADCAST_IDENTIFIER = "Broadcast";
-	public static final String XML_PREFIX = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
 	@Autowired
 	public SimpleProducer kafkaProducer;
