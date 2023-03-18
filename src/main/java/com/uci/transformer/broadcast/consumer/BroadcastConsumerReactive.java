@@ -120,7 +120,9 @@ public class BroadcastConsumerReactive {
 
 									XMessagePayload payload = XMessagePayload.builder().build();
 									payload.setText(user.get("message").toString());
-									payload.setTitle(transformer.getMetaData().get("title").toString());
+									if (transformer.getMetaData().get("title") != null) {
+										payload.setTitle(transformer.getMetaData().get("title").toString());
+									}
 
 									if(user.get("fcmToken") != null) {
 										ArrayList<Data> dataArrayList = new ArrayList<>();
