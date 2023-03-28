@@ -137,7 +137,7 @@ public class BroadcastConsumerReactive {
 											data.setValue(user.get("fcmClickActionUrl").toString());
 											dataArrayList.add(data);
 										}
-										if(user.get("data") != null){
+										if(!user.isNull("data")){
 											Map<String, String> dataMap = mapper.readValue(user.get("data").toString(), new TypeReference<Map<String, String>>() {});
 											for(String dataKey : dataMap.keySet()){
 												data = new Data();
