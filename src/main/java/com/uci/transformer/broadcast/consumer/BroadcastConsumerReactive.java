@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import messagerosa.xml.XMessageParser;
 import reactor.core.publisher.Flux;
 import reactor.kafka.receiver.ReceiverRecord;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Component
 @RequiredArgsConstructor
@@ -135,6 +136,15 @@ public class BroadcastConsumerReactive {
 											data.setKey("fcmClickActionUrl");
 											data.setValue(user.get("fcmClickActionUrl").toString());
 											dataArrayList.add(data);
+										}
+										if(user.get("data") != null){
+											Map<String, String> dataMap = mapper.readValue(user.get("data").toString(), new TypeReference<Map<String, String>>() {});
+											for(String dataKey : dataMap.keySet()){
+												data = new Data();
+												data.setKey(dataKey);
+												data.setValue(dataMap.get(dataKey));
+												dataArrayList.add(data);
+											}
 										}
 										payload.setData(dataArrayList);
 									}
