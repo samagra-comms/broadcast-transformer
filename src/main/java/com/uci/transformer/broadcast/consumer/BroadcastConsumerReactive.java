@@ -124,6 +124,17 @@ public class BroadcastConsumerReactive {
 									if (transformer.getMetaData().get("title") != null) {
 										payload.setTitle(transformer.getMetaData().get("title").toString());
 									}
+									if (transformer.getMetaData().get("data") != null) {
+										Map<String, String> dataMapForTransformer = mapper.readValue(
+											transformer.getMetaData().get("data").toString(), 
+											new TypeReference<Map<String, String>>() {});
+										for(String dataKey : dataMapForTransformer.keySet()){
+											data = new Data();
+											data.setKey(dataKey);
+											data.setValue(dataMap.get(dataKey));
+											dataArrayList.add(data);
+										}
+									}
 
 									if(user.get("fcmToken") != null) {
 										ArrayList<Data> dataArrayList = new ArrayList<>();
