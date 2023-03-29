@@ -141,6 +141,7 @@ public class BroadcastConsumerReactive {
 												data.setKey(dataKey);
 												data.setValue(dataMapForTransformer.get(dataKey));
 												dataArrayList.add(data);
+											}
 										}
 									}
 										if (user.get("fcmClickActionUrl") != null) {
