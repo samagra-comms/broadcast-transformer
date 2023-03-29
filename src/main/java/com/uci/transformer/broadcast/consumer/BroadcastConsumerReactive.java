@@ -131,9 +131,10 @@ public class BroadcastConsumerReactive {
 										for(String dataKey : dataMapForTransformer.keySet()){
 											data = new Data();
 											data.setKey(dataKey);
-											data.setValue(dataMap.get(dataKey));
+											data.setValue(dataMapForTransformer.get(dataKey));
 											dataArrayList.add(data);
 										}
+										payload.setData(dataArrayList);
 									}
 
 									if(user.get("fcmToken") != null) {
