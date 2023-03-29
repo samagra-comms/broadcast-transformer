@@ -143,7 +143,6 @@ public class BroadcastConsumerReactive {
 												dataArrayList.add(data);
 											}
 										}
-									}
 										if (user.get("fcmClickActionUrl") != null) {
 											data = new Data();
 											data.setKey("fcmClickActionUrl");
