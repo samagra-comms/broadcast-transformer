@@ -55,12 +55,13 @@ public class BroadcastConsumerReactive {
 				final long startTime = System.nanoTime();
 				try {
 					XMessage msg = XMessageParser.parse(new ByteArrayInputStream(stringMessage.value().getBytes()));
-					logTimeTaken(startTime, 1);
+					logTimeTaken(startTime, 0, null);
 					ArrayList<XMessage> messages = (ArrayList<XMessage>) transformToMany(msg);
 					if(messages.size() > 0){
 						for (XMessage message : messages) {
 							try {
 								kafkaProducer.send(processOutbound, message.toXML());
+								logTimeTaken(startTime, 0, "process-end: %d ms");
 							} catch (JAXBException e) {
 								e.printStackTrace();
 							}
@@ -218,9 +219,13 @@ public class BroadcastConsumerReactive {
 		return cloneMessage;
 	}
 
-	private void logTimeTaken(long startTime, int checkpointID) {
+	private void logTimeTaken(long startTime, int checkpointID, String formatedMsg) {
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime) / 1000000;
-		log.info(String.format("CP-%d: %d ms", checkpointID, duration));
+		if(formatedMsg == null) {
+			log.info(String.format("CP-%d: %d ms", checkpointID, duration));
+		} else {
+			log.info(String.format(formatedMsg, duration));
+		}
 	}
 }
