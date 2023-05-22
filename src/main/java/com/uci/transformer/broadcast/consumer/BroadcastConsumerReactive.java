@@ -44,6 +44,8 @@ public class BroadcastConsumerReactive {
 	@Value("${processOutbound}")
 	public String processOutbound;
 
+	private long notificationProcessedCount;
+
 	@EventListener(ApplicationStartedEvent.class)
 	public void onMessage() {
 		reactiveKafkaReceiver.doOnNext(new Consumer<ReceiverRecord<String, String>>() {
@@ -61,7 +63,8 @@ public class BroadcastConsumerReactive {
 						for (XMessage message : messages) {
 							try {
 								kafkaProducer.send(processOutbound, message.toXML());
-								logTimeTaken(startTime, 0, "process-end: %d ms");
+								notificationProcessedCount++;
+								logTimeTaken(startTime, 0, "Notification processed : " + notificationProcessedCount + "  :: process-end: %d ms");
 							} catch (JAXBException e) {
 								e.printStackTrace();
 							}
