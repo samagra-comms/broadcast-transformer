@@ -45,14 +45,15 @@ public class BroadcastConsumerReactive {
 	public String processOutbound;
 
 	private long notificationProcessedCount;
+	private long consumeCount;
 
 	@EventListener(ApplicationStartedEvent.class)
 	public void onMessage() {
 		reactiveKafkaReceiver.doOnNext(new Consumer<ReceiverRecord<String, String>>() {
 			@Override
 			public void accept(ReceiverRecord<String, String> stringMessage) {
-
-				log.info("kafka message received ");
+				consumeCount++;
+				log.info("BroadcastConsumerReactive:Consume topic from kafka: "+consumeCount);
 
 				final long startTime = System.nanoTime();
 				try {
@@ -64,25 +65,22 @@ public class BroadcastConsumerReactive {
 							try {
 								kafkaProducer.send(processOutbound, message.toXML());
 								notificationProcessedCount++;
-								logTimeTaken(startTime, 0, "Notification processed : " + notificationProcessedCount + "  :: process-end: %d ms");
+								logTimeTaken(startTime, 0, "Notification processed by broadcast-transformer: " + notificationProcessedCount + "  :: broadcast-transformer-process-end: %d ms");
 							} catch (JAXBException e) {
-								e.printStackTrace();
+								log.error("BroadcastConsumerReactive: Unable to send topic to kafka:Exception: "+e.getMessage());
 							}
 						}
 					} else {
-						log.error("No user messages to broadcast.");
+						log.error("BroadcastConsumerReactive: Unable to send topic to kafka:Exception: No user messages to broadcast.");
 					}
-				} catch (JAXBException e) {
-					e.printStackTrace();
 				} catch (Exception e) {
-					e.printStackTrace();
+                    log.error("BroadcastConsumerReactive: Unable to send topic to kafka:Exception: "+e.getMessage());
 				}
 			}
 		}).doOnError(new Consumer<Throwable>() {
 			@Override
 			public void accept(Throwable e) {
-				System.out.println(e.getMessage());
-				log.error("KafkaFlux exception", e);
+                log.error("BroadcastConsumerReactive: Unable to send topic to kafka:Exception: "+e.getMessage());
 			}
 		}).subscribe();
 
@@ -138,7 +136,7 @@ public class BroadcastConsumerReactive {
 										dataArrayList.add(data);
 										if (transformer.getMetaData().get("data") != null) {
 											Map<String, String> dataMapForTransformer = mapper.readValue(
-												transformer.getMetaData().get("data").toString(), 
+												transformer.getMetaData().get("data").toString(),
 												new TypeReference<Map<String, String>>() {});
 											for(String dataKey : dataMapForTransformer.keySet()){
 												data = new Data();
@@ -196,17 +194,16 @@ public class BroadcastConsumerReactive {
 								}
 							}
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+                            log.error("BroadcastConsumerReactive:transformToMany::Exception: "+e.getMessage());
 						}
 
 					} else {
-						log.info("No federatedUsers found.");
+						log.error("BroadcastConsumerReactive:transformToMany::Exception: Federated users are not found.");
 					}
 				});
 			}
 		} catch (Exception e) {
-			log.error("Exception in transformToMany: "+e.getMessage());
+			log.error("BroadcastConsumerReactive:transformToMany::Exception: "+e.getMessage());
 		}
 		return messages;
 	}
