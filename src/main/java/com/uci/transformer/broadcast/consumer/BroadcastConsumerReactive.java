@@ -4,10 +4,7 @@ import static messagerosa.core.model.XMessage.MessageState.NOT_SENT;
 import static messagerosa.core.model.XMessage.MessageType.HSM;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 import javax.xml.bind.JAXBException;
@@ -47,6 +44,10 @@ public class BroadcastConsumerReactive {
 	private long notificationProcessedCount;
 	private long consumeCount;
 
+	private Set<String> messageIdSet = new HashSet<>();
+
+	private long insertSetCount, existSetCount;
+
 	@EventListener(ApplicationStartedEvent.class)
 	public void onMessage() {
 		reactiveKafkaReceiver.doOnNext(new Consumer<ReceiverRecord<String, String>>() {
@@ -58,9 +59,24 @@ public class BroadcastConsumerReactive {
 				final long startTime = System.nanoTime();
 				try {
 					XMessage msg = XMessageParser.parse(new ByteArrayInputStream(stringMessage.value().getBytes()));
+					if (msg.getMessageId() != null && msg.getMessageId().getChannelMessageId() != null) {
+						String messageId = msg.getMessageId().getChannelMessageId();
+						if (messageIdSet.contains(messageId)) {
+							existSetCount++;
+							log.info("BroadcastConsumerReactive:Already Counsumed : " + existSetCount + " MessageId : " + messageId);
+							return;
+						} else {
+							insertSetCount++;
+							log.info("BroadcastConsumerReactive:Insert in set count : " + insertSetCount + " MessageId : " + messageId);
+							messageIdSet.add(messageId);
+						}
+						log.info("BroadcastConsumerReactive: Total MessageId Set : " + messageIdSet.size());
+					}
+
 					logTimeTaken(startTime, 0, null);
 					ArrayList<XMessage> messages = (ArrayList<XMessage>) transformToMany(msg);
 					if(messages.size() > 0){
+						log.info("BroadcastConsumerReactive:transformToMany::Count: "+messages);
 						for (XMessage message : messages) {
 							try {
 								kafkaProducer.send(processOutbound, message.toXML());
