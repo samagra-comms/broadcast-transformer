@@ -59,24 +59,11 @@ public class BroadcastConsumerReactive {
 				final long startTime = System.nanoTime();
 				try {
 					XMessage msg = XMessageParser.parse(new ByteArrayInputStream(stringMessage.value().getBytes()));
-					if (msg.getMessageId() != null && msg.getMessageId().getChannelMessageId() != null) {
-						String messageId = msg.getMessageId().getChannelMessageId();
-						if (messageIdSet.contains(messageId)) {
-							existSetCount++;
-							log.info("BroadcastConsumerReactive:Already Counsumed : " + existSetCount + " MessageId : " + messageId);
-							return;
-						} else {
-							insertSetCount++;
-							log.info("BroadcastConsumerReactive:Insert in set count : " + insertSetCount + " MessageId : " + messageId);
-							messageIdSet.add(messageId);
-						}
-						log.info("BroadcastConsumerReactive: Total MessageId Set : " + messageIdSet.size());
-					}
 
 					logTimeTaken(startTime, 0, null);
 					ArrayList<XMessage> messages = (ArrayList<XMessage>) transformToMany(msg);
 					if(messages.size() > 0){
-						log.info("BroadcastConsumerReactive:transformToMany::Count: "+messages);
+						log.info("BroadcastConsumerReactive:transformToMany::Count: "+messages.size());
 						for (XMessage message : messages) {
 							try {
 								kafkaProducer.send(processOutbound, message.toXML());
