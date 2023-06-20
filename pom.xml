@@ -16,8 +16,8 @@
 
 	<properties>
 		<java.version>11</java.version>
-		<utils.version>2.2.3</utils.version>
-		<messagerosa.version>2.2.3</messagerosa.version>
+		<utils.version>2.2.3-SNAPSHOT</utils.version>
+		<messagerosa.version>2.2.3-SNAPSHOT</messagerosa.version>
 	</properties>
 
 	<!-- For Downloading repositories from github packages -->

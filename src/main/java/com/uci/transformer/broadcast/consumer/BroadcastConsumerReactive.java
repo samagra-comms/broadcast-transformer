@@ -44,10 +44,6 @@ public class BroadcastConsumerReactive {
 	private long notificationProcessedCount;
 	private long consumeCount;
 
-	private Set<String> messageIdSet = new HashSet<>();
-
-	private long insertSetCount, existSetCount;
-
 	@EventListener(ApplicationStartedEvent.class)
 	public void onMessage() {
 		reactiveKafkaReceiver.doOnNext(new Consumer<ReceiverRecord<String, String>>() {
@@ -59,7 +55,6 @@ public class BroadcastConsumerReactive {
 				final long startTime = System.nanoTime();
 				try {
 					XMessage msg = XMessageParser.parse(new ByteArrayInputStream(stringMessage.value().getBytes()));
-
 					logTimeTaken(startTime, 0, null);
 					ArrayList<XMessage> messages = (ArrayList<XMessage>) transformToMany(msg);
 					if(messages.size() > 0){
