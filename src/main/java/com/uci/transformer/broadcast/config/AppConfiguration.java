@@ -1,6 +1,7 @@
 package com.uci.transformer.broadcast.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import com.uci.utils.dto.BotServiceParams;
 import io.fusionauth.client.FusionAuthClient;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -41,7 +42,7 @@ public class AppConfiguration {
 
     @Value("${fusionauth.key}")
     public String FUSIONAUTH_KEY;
-    
+
     @Autowired
     public Cache<Object, Object> cache;
 
@@ -80,12 +81,12 @@ public class AppConfiguration {
 
     @Bean
     ReceiverOptions<String, String> kafkaReceiverOptions(@Value("${broadcast-transformer}") String[] inTopicName) {
-    	System.out.println("inTopicName:"+inTopicName.toString());
-        System.out.println("BOOTSTRAP_SERVERS: "+BOOTSTRAP_SERVERS);
-        for (int i=0;i<inTopicName.length;i++) {
-        	System.out.println("Name: "+inTopicName[i]);
+        System.out.println("inTopicName:" + inTopicName.toString());
+        System.out.println("BOOTSTRAP_SERVERS: " + BOOTSTRAP_SERVERS);
+        for (int i = 0; i < inTopicName.length; i++) {
+            System.out.println("Name: " + inTopicName[i]);
         }
-    	ReceiverOptions<String, String> options = ReceiverOptions.create(kafkaConsumerConfiguration());
+        ReceiverOptions<String, String> options = ReceiverOptions.create(kafkaConsumerConfiguration());
         return options.subscription(Arrays.asList(inTopicName))
                 .withKeyDeserializer(new JsonDeserializer<>())
                 .withValueDeserializer(new JsonDeserializer(String.class));
@@ -105,16 +106,22 @@ public class AppConfiguration {
     KafkaSender<Integer, String> reactiveKafkaSender(SenderOptions<Integer, String> kafkaSenderOptions) {
         return KafkaSender.create(kafkaSenderOptions);
     }
-    
+
     @Bean
-    ProducerFactory<String, String> producerFactory(){
-    	ProducerFactory<String, String> producerFactory = new DefaultKafkaProducerFactory<>(kafkaProducerConfiguration());
-    	return producerFactory;
+    ProducerFactory<String, String> producerFactory() {
+        ProducerFactory<String, String> producerFactory = new DefaultKafkaProducerFactory<>(kafkaProducerConfiguration());
+        return producerFactory;
     }
-    
+
     @Bean
     KafkaTemplate<String, String> kafkaTemplate() {
-    	KafkaTemplate<String, String> kafkaTemplate = new KafkaTemplate<>(producerFactory());
-    	return (KafkaTemplate<String, String>) kafkaTemplate;
+        KafkaTemplate<String, String> kafkaTemplate = new KafkaTemplate<>(producerFactory());
+        return (KafkaTemplate<String, String>) kafkaTemplate;
     }
+
+    @Bean
+    public BotServiceParams getBotServiceParams() {
+        return new BotServiceParams();
+    }
+
 }
