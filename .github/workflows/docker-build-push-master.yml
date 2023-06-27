@@ -1,4 +1,4 @@
-name: Docker Build
+name: Docker Build (Master)
 on:
   push:
     branches:
@@ -29,5 +29,5 @@ jobs:
           push: true
           tags: samagragovernance/broadcast-transformer:v${{ steps.version.outputs.VERSION }}
           build-args: |
-            username=${{ secrets.GH_USERNAME }},
-            token=${{ secrets.GH_TOKEN }}
+            username=${{ secrets.USERNAME }},
+            token=${{ secrets.TOKEN }}
