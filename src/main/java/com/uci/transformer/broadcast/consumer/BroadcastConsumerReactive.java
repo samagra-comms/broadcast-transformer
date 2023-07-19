@@ -43,6 +43,8 @@ public class BroadcastConsumerReactive {
 
 	private long notificationProcessedCount;
 	private long consumeCount;
+	@Value("${notificationOutbound}")
+	public String notificationOutbound;
 
 	@EventListener(ApplicationStartedEvent.class)
 	public void onMessage() {
@@ -61,7 +63,7 @@ public class BroadcastConsumerReactive {
 						log.info("BroadcastConsumerReactive:transformToMany::Count: "+messages.size());
 						for (XMessage message : messages) {
 							try {
-								kafkaProducer.send(processOutbound, message.toXML());
+								kafkaProducer.send(notificationOutbound, message.toXML());
 								notificationProcessedCount++;
 								logTimeTaken(startTime, 0, "Notification processed by broadcast-transformer: " + notificationProcessedCount + "  :: broadcast-transformer-process-end: %d ms");
 							} catch (JAXBException e) {
