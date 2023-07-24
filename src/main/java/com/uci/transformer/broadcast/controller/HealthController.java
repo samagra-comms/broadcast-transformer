@@ -73,4 +73,27 @@ public class HealthController {
         }
     }
 
+    @RequestMapping(value = "/testTransformer", method = RequestMethod.GET, produces = {"application/json", "text/json"})
+    public ResponseEntity<String> testTransformer(@RequestParam(value = "size", required = false) String size) {
+        String xmessage = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+                "<xMessage><adapterId>44a9df72-3d7a-4ece-94c5-98cf26307324</adapterId><app>UCI Demo</app><botId>5768d2b7-15c5-4ab2-bab1-e7ba2c638ec2</botId><channel>WhatsApp</channel><channelURI>WhatsApp</channelURI><from><bot>false</bot><broadcast>false</broadcast><userID>admin</userID></from><messageId><channelMessageId>ABEGkZeDJGJHAhAhmDNbLpGYH51DIfbN_Qhb</channelMessageId></messageId><messageState>REPLIED</messageState><messageType>TEXT</messageType><ownerId>8f7ee860-0163-4229-9d2a-01cef53145ba</ownerId><ownerOrgId>org01</ownerOrgId><payload><text>Hi UCI</text></payload><provider>Netcore</provider><providerURI>Netcore</providerURI><sessionId>958bea64-9538-4972-9de1-abef8480a410</sessionId><timestamp>1690181147000</timestamp><to><bot>false</bot><broadcast>false</broadcast><campaignID>UCI Demo</campaignID><deviceID>4f7d3d09-602b-4c31-8371-00ed96b4e15b</deviceID><deviceType>PHONE</deviceType><encryptedDeviceID>RHzlIP6jVvPAmyOUEmhkmtb0wsmh8St/ty+pM5Q+4W4=</encryptedDeviceID><userID>9783246247</userID></to><transformers><id>9c46aa04-b72e-423a-aab7-a1a05842d99b</id><metaData><entry><key>formID</key><value>UCI-demo-1</value></entry><entry><key>startingMessage</key><value>Hi UCI</value></entry><entry><key>botOwnerOrgID</key><value>org01</value></entry><entry><key>botId</key><value>5768d2b7-15c5-4ab2-bab1-e7ba2c638ec2</value></entry><entry><key>botOwnerID</key><value>8f7ee860-0163-4229-9d2a-01cef53145ba</value></entry><entry><key>id</key><value>9c46aa04-b72e-423a-aab7-a1a05842d99b</value></entry><entry><key>type</key><value/></entry></metaData></transformers></xMessage>";
+        try {
+            Date start = new Date();
+            long longSize = 0;
+            if (size != null && !size.isEmpty()) {
+                longSize = Long.parseLong(size);
+            } else {
+                longSize = 0;
+            }
+            for (long i = 0; i < longSize; i++) {
+                log.info("push notification count : " + i);
+                kafkaProducer.send("com.odk.transformer", xmessage);
+            }
+            Date endDate = new Date();
+            return new ResponseEntity<>("process complete start date : " + start + " end : " + endDate, HttpStatus.OK);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 }
