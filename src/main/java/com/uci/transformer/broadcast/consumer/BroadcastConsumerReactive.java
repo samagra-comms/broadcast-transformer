@@ -63,9 +63,13 @@ public class BroadcastConsumerReactive {
 						log.info("BroadcastConsumerReactive:transformToMany::Count: "+messages.size());
 						for (XMessage message : messages) {
 							try {
-								kafkaProducer.send(notificationOutbound, message.toXML());
-								notificationProcessedCount++;
-								logTimeTaken(startTime, 0, "Notification processed by broadcast-transformer: " + notificationProcessedCount + "  :: broadcast-transformer-process-end: %d ms");
+								if(message != null && message.getProviderURI().equals("firebase") && message.getChannelURI().equals("web")){
+									kafkaProducer.send(notificationOutbound, message.toXML());
+									notificationProcessedCount++;
+									logTimeTaken(startTime, 0, "Notification processed by broadcast-transformer: " + notificationProcessedCount + "  :: broadcast-transformer-process-end: %d ms");
+								} else{
+									kafkaProducer.send(processOutbound, message.toXML());
+								}
 							} catch (JAXBException e) {
 								log.error("BroadcastConsumerReactive: Unable to send topic to kafka:Exception: "+e.getMessage());
 							}
@@ -126,7 +130,7 @@ public class BroadcastConsumerReactive {
 									if (transformer.getMetaData().get("title") != null) {
 										payload.setTitle(transformer.getMetaData().get("title").toString());
 									}
-									
+
 
 									if(user.get("fcmToken") != null) {
 										ArrayList<Data> dataArrayList = new ArrayList<>();
