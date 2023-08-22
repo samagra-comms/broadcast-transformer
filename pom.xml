@@ -10,14 +10,14 @@
 	</parent>
 	<groupId>com.uci</groupId>
 	<artifactId>broadcast-transformer</artifactId>
-	<version>2.2.12</version>
+	<version>2.2.13</version>
 	<name>broadcast-transformer</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
 		<java.version>11</java.version>
-		<utils.version>2.2.7-SNAPSHOT</utils.version>
-		<messagerosa.version>2.2.7-SNAPSHOT</messagerosa.version>
+		<utils.version>2.2.8-SNAPSHOT</utils.version>
+		<messagerosa.version>2.2.8-SNAPSHOT</messagerosa.version>
 	</properties>
 
 	<!-- For Downloading repositories from github packages -->
