@@ -27,7 +27,7 @@ jobs:
         with:
           context: "."
           push: true
-          tags: samagragovernance/broadcast-transformer:v${{ steps.version.outputs.VERSION }}-SNAPSHOT
+          tags: samagragovernance/broadcast-transformer:v${{ steps.version.outputs.VERSION }}-TESTING
           build-args: |
             username=${{ secrets.USERNAME }},
             token=${{ secrets.TOKEN }}
