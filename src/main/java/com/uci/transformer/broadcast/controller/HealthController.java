@@ -1,7 +1,12 @@
 package com.uci.transformer.broadcast.controller;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Date;
+import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uci.utils.UtilHealthService;
 import com.uci.utils.kafka.SimpleProducer;
 import com.uci.utils.model.ApiResponse;
@@ -10,8 +15,10 @@ import com.uci.utils.model.ApiResponseParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Status;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -97,5 +104,53 @@ public class HealthController {
             ex.printStackTrace();
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+
+    @RequestMapping(value = "/stressTransformer", method = RequestMethod.GET, produces = {"application/json", "text/json"})
+    public ResponseEntity<String> stressTransformer(@RequestParam(value = "size", required = false) String size) {
+        try {
+            Date start = new Date();
+            long longSize = 0;
+            if (size != null && !size.isEmpty()) {
+                longSize = Long.parseLong(size);
+            } else {
+                longSize = 0;
+            }
+            for (long i = 0; i < longSize; i++) {
+                log.info("push notification count : " + i);
+                List<String> stringList = readJsonFile();
+                stringList.forEach(topic -> {
+                    kafkaProducer.send("com.odk.transformer", topic);
+                });
+            }
+            Date endDate = new Date();
+            return new ResponseEntity<>("process complete start date : " + start + " end : " + endDate, HttpStatus.OK);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Value("classpath:topics.json") // Assuming your JSON file is named "data.json" in the resources folder
+    private Resource resource;
+
+    //    private String readJsonFile() {
+//        try (Reader reader = new InputStreamReader(resource.getInputStream())) {
+//            return FileCopyUtils.copyToString(reader);
+//        } catch (IOException e) {
+//            throw new RuntimeException("Failed to read JSON file", e);
+//        }
+//
+//    }
+    private List<String> readJsonFile() {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<String> jsonData = objectMapper.readValue(new InputStreamReader(resource.getInputStream()), List.class);
+            return jsonData;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
