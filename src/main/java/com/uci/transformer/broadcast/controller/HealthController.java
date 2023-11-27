@@ -8,7 +8,6 @@ import com.uci.utils.model.ApiResponse;
 import com.uci.utils.model.ApiResponseParams;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,9 +30,6 @@ public class HealthController {
 
     @Autowired
     public SimpleProducer kafkaProducer;
-
-    @Value("${test.transformer.xmessage}")
-    private String testTransformerXmessage;
 
     @RequestMapping(value = "/health", method = RequestMethod.GET, produces = {"application/json", "text/json"})
     public Mono<ResponseEntity<ApiResponse>> statusCheck() {
@@ -68,28 +64,6 @@ public class HealthController {
             for (long i = 0; i < longSize; i++) {
                 log.info("push notification count : " + i);
                 kafkaProducer.send("notification-outbound", xmessage);
-            }
-            Date endDate = new Date();
-            return new ResponseEntity<>("process complete start date : " + start + " end : " + endDate, HttpStatus.OK);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @RequestMapping(value = "/testTransformer", method = RequestMethod.GET, produces = {"application/json", "text/json"})
-    public ResponseEntity<String> testTransformer(@RequestParam(value = "size", required = false) String size) {
-        try {
-            Date start = new Date();
-            long longSize = 0;
-            if (size != null && !size.isEmpty()) {
-                longSize = Long.parseLong(size);
-            } else {
-                longSize = 0;
-            }
-            for (long i = 0; i < longSize; i++) {
-                log.info("push notification count : " + i);
-                kafkaProducer.send("com.odk.transformer", testTransformerXmessage);
             }
             Date endDate = new Date();
             return new ResponseEntity<>("process complete start date : " + start + " end : " + endDate, HttpStatus.OK);
